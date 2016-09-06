@@ -313,7 +313,7 @@ about_wireshark_page_new(void)
 
   about_wireshark(top_level, main_box);
 
-
+ 
   /* Construct the message string */
   message = g_strdup_printf(
        "\n"
