@@ -363,6 +363,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
  * If necessary, columns are first "columnized" for all rows in the packet-list; If this
  *  is not completed (i.e., stopped), then the sort request is aborted.
  */
+//Wills changes///////?
 static void
 packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order, gboolean sort_indicator)
 {
@@ -371,8 +372,14 @@ packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order,
 	if (col == NULL) {
 		col = gtk_tree_view_get_column(GTK_TREE_VIEW(packetlist->view), col_id);
 	}
+	/* Original/
 	g_assert(col);
+        */
 
+	if (col == NULL){
+	printf("Dingus");
+	}
+	else{
 	if (!packet_list_do_packet_list_dissect_and_cache_all(packetlist, col_id)) {
 		return;  /* "stopped": do not try to sort */
 	}
@@ -389,6 +396,7 @@ packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order,
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order); /* triggers sort callback */
 
 	scroll_to_current ();
+	}
 }
 
 /*
@@ -513,14 +521,18 @@ packet_list_set_all_columns_visible (void)
 
 static void
 packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
-{
-	column_prefs_remove_nth(col_id);
+{ 
 
+        //William Check if Column is last and Don't allow removal option 1//
+        if(cfile.cinfo.num_cols > 1){
+	column_prefs_remove_nth(col_id);
+        }
 	if (!prefs.gui_use_pref_save) {
 		prefs_main_write();
 	}
 
 	packet_list_recreate();
+
 }
 
 static void
@@ -1206,6 +1218,7 @@ packet_list_get_event_row_column(GdkEventButton *event_button,
 		return FALSE;
 }
 
+//William//
 frame_data *
 packet_list_get_row_data(gint row)
 {

@@ -105,20 +105,20 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	export_object_list_t *object_list = (export_object_list_t *)data;
 	export_object_entry_t *entry;
 	GSList *slist = object_list->entries;
-
+        slist = slist->next; //Incremented Once Becuase otherwise it is not intilzied//
 	remove_tap_listener(object_list);
-
 	/* Free the GSList attributes */
-	while(slist) {
-		entry = (export_object_entry_t *)slist->data;
+       while(slist) {
+		entry = (export_object_entry_t *)slist->data; //good
 
-		g_free(entry->hostname);
-		g_free(entry->content_type);
-		g_free(entry->filename);
-		wmem_free(wmem_file_scope(), entry->payload_data);
+		g_free(entry->hostname); //good
+		g_free(entry->content_type); //good
+		g_free(entry->filename); //good
+	        
+		//wmem_free(wmem_file_scope(), entry->payload_data); // Causes crash on first run
 
-		slist = slist->next;
-		wmem_free(wmem_file_scope(), entry);
+		slist = slist->next; //good
+		//wmem_free(wmem_file_scope(), entry); // Causes crash on first run
 	}
 
 	/* Free the GSList elements */

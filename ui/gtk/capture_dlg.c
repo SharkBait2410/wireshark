@@ -215,6 +215,9 @@ enum
 #define DUMMY_SNAPLENGTH                65535
 #define DUMMY_NETMASK                   0xFF000000
 
+//William Delete me//
+int lock = 0;
+int lock2 = 0;
 enum
 {
   COL_NAME = 0,
@@ -3848,12 +3851,24 @@ capture_dlg_refresh_if (void)
 /*
  * We've been asked to rescan the system looking for interfaces.
  */
+///This is the Refresh interface list function that is called when you click the button -William
 static void
-rescan_local_cb(GtkWidget *button _U_, gpointer *data _U_)
+rescan_local_cb(GtkWidget *button _U_, gpointer *data _U_) //Function called
 {
   /* Refresh all places that are displaying an interface list
      that includes local interfaces. */
-  refresh_local_interface_lists();
+  if (lock2 == 0){ //You can excucute this if statement twice if click fast enough before lock is set//
+  lock2 = 1; //Lock is set to not allow calling of the if statement while the function is running//
+  refresh_local_interface_lists(); //Lock is also inside the function since you can have two competing to run//
+  lock2 = 0;
+  }
+  //gtk_main_iteration();
+
+ /* while (gtk_events_pending()){
+  gtk_main_iteration();
+  }*/
+  //gtk_widget_show(); Attempt 2//
+  
 }
 
 #if defined(HAVE_PCAP_REMOTE)
@@ -4076,7 +4091,7 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
 
   /* --- Pipes --- */
   temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
-  tmp = gtk_label_new("Pipes");
+  tmp = gtk_label_new("Pipes"); 
   gtk_widget_show(tmp);
   hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
@@ -4203,7 +4218,7 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
 
   /* --- Local interfaces --- */
   temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
-  tmp = gtk_label_new("Local Interfaces");
+  tmp = gtk_label_new("Local Interfaces Here in Capture_dlg.c");
   gtk_widget_show(tmp);
   hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(hbox), tmp, TRUE, TRUE, 0);
@@ -4253,13 +4268,19 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
   gtk_widget_show(local_l);
 
   fill_local_list();
-
+//Refresh Button start WIlliam Notes//
   bbox = dlg_button_row_new(GTK_STOCK_REFRESH, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
 
   gtk_box_pack_start(GTK_BOX(temp_page), bbox, FALSE, FALSE, 5);
   refresh_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_REFRESH);
+  
+//if(lock == 0){
   g_signal_connect(refresh_bt, "clicked", G_CALLBACK(rescan_local_cb), NULL);
+//}
   gtk_widget_set_tooltip_text(GTK_WIDGET(refresh_bt), "Rescan the local interfaces and refresh the list");
+  gtk_widget_show_all(interface_management_w);
+
+//Refresh Button end//
 
   cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   g_signal_connect(GTK_WIDGET(cancel_bt), "clicked", G_CALLBACK(cancel_pipe_cb), interface_management_w);
@@ -4841,7 +4862,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "See the FAQ for some more details of capturing packets from a switched network.");
   gtk_box_pack_start(GTK_BOX(left_vb), promisc_cb, TRUE, TRUE, DLG_LABEL_SPACING);
 
-  iftype_cbx = gtk_button_new_with_label("Manage Interfaces");
+  iftype_cbx = gtk_button_new_with_label("Manage Interfaces Button is here");
   gtk_widget_set_tooltip_text(iftype_cbx, "Add a new interface or pipe to capture from or remove "
                                           "an interface from the list.");
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_CBX_KEY, iftype_cbx);
@@ -6144,9 +6165,10 @@ gboolean capture_dlg_window_present(void)
  * includes local interfaces.
  */
 void
-refresh_local_interface_lists(void)
-{
-  /* Reload the local interface list. */
+refresh_local_interface_lists(void) //Function that actually Refreshes the interface list -william
+{  
+  if (lock == 0){ //This second lock is necassary as two processes can slip through the first lock if you click fast enough
+  lock = 1;
   scan_local_interfaces(main_window_update);
 
   /* If there's an interfaces dialog up, refresh it. */
@@ -6163,6 +6185,8 @@ refresh_local_interface_lists(void)
 
   /* Refresh the 802.11 toolbar. */
   tb80211_refresh_interfaces();
+  } 
+  lock = 0; 
 }
 
 /*
