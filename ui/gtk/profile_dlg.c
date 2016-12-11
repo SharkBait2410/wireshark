@@ -36,6 +36,9 @@
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 
+//William
+#include "ui/capture_globals.h"
+
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/profile_dlg.h"
@@ -135,9 +138,20 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 static void
 profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 {
-  const gchar *err_msg;
 
-  if ((err_msg = apply_profile_changes()) != NULL) {
+  const gchar *err_msg;
+err_msg = apply_profile_changes();
+if(global_capture_opts.show_info == FALSE){
+  printf("set false");
+  }
+else {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Cannot change profiles when capture options set to hidden and capture is running");
+    g_free((gchar*)err_msg);
+    return;
+    //empty_profile_list(TRUE);
+    //window_destroy(main_w);
+  }
+  if (err_msg != NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
     g_free((gchar*)err_msg);
     return;

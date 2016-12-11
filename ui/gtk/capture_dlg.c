@@ -5236,6 +5236,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_info_cb), !global_capture_opts.show_info);
   gtk_widget_set_tooltip_text(hide_info_cb, "Hide the capture info dialog while capturing.");
   gtk_box_pack_start(GTK_BOX (display_vb), hide_info_cb, FALSE, TRUE, 0);
+  printf(E_CAP_HIDE_INFO_KEY);//William//
+  printf("%d",gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hide_info_cb)));
+  printf("%d",global_capture_opts.show_info);
 
   /* Name Resolution frame */
   resolv_fr = frame_new("Name Resolution");
